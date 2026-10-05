@@ -1,0 +1,20 @@
+{
+  "name": "learning-node",
+  "version": "1.0.0",
+  "description": "This is my first nodeJs project",
+  "homepage": "https://github.com/Soroush-de/nodejs-beginner-project#readme",
+  "bugs": {
+    "url": "https://github.com/Soroush-de/nodejs-beginner-project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Soroush-de/nodejs-beginner-project.git"
+  },
+  "license": "ISC",
+  "author": "Soroush-de",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
