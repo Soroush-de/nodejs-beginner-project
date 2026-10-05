@@ -1,36 +1,78 @@
-# Node.js Beginner Project
+# Node.js REST API
 
-My first Node.js backend project, built while learning the fundamentals of backend development with Node.js.
+A simple REST API built with pure Node.js to practice backend fundamentals without using Express or other frameworks.
 
-## What I Learned
+## Features
 
-- Creating an HTTP server with Node.js
-- Handling HTTP requests and responses
-- Working with routes
-- Handling GET and DELETE requests
-- Working with JSON data
-- Reading and writing files
-- Creating simple APIs
-- Working with query parameters
-- Searching and sorting data
-- Basic CRUD operations
+* Users API
+* Products API
+* Get users list
+* Search users
+* Sort users by different fields
+* Ascending and descending sorting
+* Get user by ID
+* Get products list
+* Get product by ID
+* HTTP status codes
+* Error handling with `try/catch`
+* Async file operations with `fs/promises`
+* JSON file as a simple data source
 
-## Project Structure
+## Technologies
 
-- `index.js` - Main HTTP server
-- `userController.js` - User-related operations
-- `productController.js` - Product-related operations
-- `users.json` - User data
-- `products.json` - Product data
+* Node.js
+* JavaScript
+* HTTP Module
+* File System (`fs/promises`)
+* JSON
+
+## API Endpoints
+
+### Users
+
+```text
+GET /api/users/usersGetList
+GET /api/users/userGetById?id=1
+```
+
+Search:
+
+```text
+GET /api/users/usersGetList?q=soroush
+```
+
+Search and sort:
+
+```text
+GET /api/users/usersGetList?q=soroush&sort=name&sortType=1
+```
+
+`sortType`:
+
+* `1` → Ascending
+* `2` → Descending
+
+### Products
+
+```text
+GET /api/products/productsGetList
+GET /api/products/productGetById?id=1
+```
+
+## Purpose
+
+This project is part of my Node.js backend learning journey.
+
+The main goal is to understand Node.js fundamentals such as HTTP servers, routing, asynchronous I/O, file handling, query parameters, error handling, and the Event Loop before moving to frameworks like Express and NestJS.
 
 ## How to Run
 
-Clone the repository:
-
 ```bash
-git clone https://github.com/Soroush-de/nodejs-beginner-project.git
+node server.js
+```
 
-Go to the project directory and write:
-node index.js
+The server will run on:
 
-this will run server on 127.0.0.1:300
+```text
+http://127.0.0.1:3000
+```
