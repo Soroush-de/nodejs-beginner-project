@@ -15,7 +15,7 @@ async function get(res = null, searchParams) {
   }
 }
 async function getById(res, id) {
-  console.log(id)
+  
   try {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
