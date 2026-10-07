@@ -20,7 +20,6 @@ const filterBySearch = ({ products, search }) => {
 };
 function sortProducts({ products, sort = null, sortType = 1 }) {
   if (!sort) return products;
-
   return products.sort((a, b) => {
     const aValue = a[sort];
     const bValue = b[sort];

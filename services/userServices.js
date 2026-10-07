@@ -72,6 +72,7 @@ function userGetListByFilterQueries({ searchParams, userList }) {
     return String(user?.isActive) === isActive;
   });
 }
+
 module.exports.userServices = {
   userGetListBySearch,
   userGetListBySort,

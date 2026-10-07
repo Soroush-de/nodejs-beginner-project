@@ -53,9 +53,27 @@ async function userDeleteById(id) {
 
   return founded;
 }
-
+async function userSave(user) {
+  if (!user) throw new Error("user is not defined");
+  const usersList = await getAllUsersList();
+  if (!user?.id) {
+    const userWithId = { id: usersList?.length + 1, ...user };
+    usersList?.push(userWithId);
+    await fs.writeFile(usersPath, JSON.stringify(usersList));
+    return userWithId;
+  }
+  const foundedIndex = usersList?.findIndex((item) => item?.id == user?.id);
+  if (foundedIndex == -1) {
+    throw new Error("user not found by id");
+  }
+  usersList[foundedIndex] = user;
+  console.log(usersList);
+  await fs.writeFile(usersPath, JSON.stringify(usersList));
+  return user;
+}
 module.exports.userModels = {
   userGetById,
   userDeleteById,
   userGetList,
+  userSave,
 };

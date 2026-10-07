@@ -23,7 +23,9 @@ async function productGetList({ searchParams }) {
         stock,
       }),
     )
-    .then((data) => sortProducts({ products: data, sort, sortType }));
+    .then((data) =>
+      sortProducts({ products: data, sort, sortType: sortType ? sortType : 1 }),
+    );
 
   return productList;
 }

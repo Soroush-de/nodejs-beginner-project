@@ -8,18 +8,40 @@ server.on("request", async (req, res) => {
   if (req.url == "/favicon.ico") {
     return res.end();
   }
-  if (pathname == "/api/products/productsGetList") {
-    return productControllers.get(res, searchParams);
-  } else if (pathname == "/api/products/productGetById") {
-    return productControllers.getById(res, searchParams.get("id"));
-  } else if (pathname == "/api/products/deleteById") {
-    return productControllers.deleteById(res, searchParams.get("id"));
-  } else if (pathname == "/api/users/usersGetList") {
-    return userController.get({ res, searchParams });
-  } else if (pathname == "/api/users/userGetById") {
-    return userController.getById({ id: searchParams.get("id"), res });
-  } else if (pathname == "/api/users/userDeleteById") {
-    return userController.deleteById(searchParams.get("id"), res);
+  switch (pathname) {
+    case "/api/products/productsGetList":
+      return productControllers.get(res, searchParams);
+
+    case "/api/products/productGetById":
+      return productControllers.getById(res, searchParams.get("id"));
+
+    case "/api/products/deleteById":
+      return productControllers.deleteById(res, searchParams.get("id"));
+
+    case "/api/users/usersGetList":
+      return userController.get({ res, searchParams });
+
+    case "/api/users/userGetById":
+      return userController.getById({
+        id: searchParams.get("id"),
+        res,
+      });
+
+    case "/api/users/userDeleteById":
+      return userController.deleteById(searchParams.get("id"), res);
+  }
+  if (pathname == "/api/save/saveUser") {
+    if (req.method !== "POST") {
+      res.statusCode = 403;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          message: "method not allowed",
+        }),
+      );
+    }
+    const user = await userController.getRequestBody(req);
+    return await userController.userSave(res, user);
   }
   res.statusCode = 400;
   res.setHeader("Content-Type", "text/html");
