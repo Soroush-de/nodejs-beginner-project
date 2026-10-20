@@ -57,7 +57,6 @@ async function deleteById(id, res) {
 }
 async function userSave(res, user) {
   try {
-    console.log({ user });
     res.statusCode = 200;
     const saved = await userModels.userSave(user);
     res.setHeader("Content-Type", "application/json");

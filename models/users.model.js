@@ -2,13 +2,16 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const { userServices } = require("../services/userServices");
+const { connectToMongo } = require("../config/connect_to_mongo");
 
 const usersPath = path.join(__dirname, "../db/users.json");
-
+async function getCollections(db, collection_name) {
+  return await db.collection(collection_name);
+}
 async function getAllUsersList() {
-  const userList = await fs.readFile(usersPath, "utf-8");
-
-  return JSON.parse(userList);
+  const db = await connectToMongo();
+  const userCollection = db.collection("users");
+  return userCollection?.find({})?.toArray();
 }
 
 async function userGetList({ searchParams }) {
@@ -25,51 +28,53 @@ async function userGetList({ searchParams }) {
 
   return userList;
 }
-
 async function userGetById(id) {
-  if (!id) return console.error("id is required");
-
-  const userList = await getAllUsersList();
-
-  const founded = userList.find((item) => item?.id == id);
-
-  if (!founded) return console.error("user not found");
-
+  if (id == null || id === "" || !Number.isSafeInteger(userId)) {
+    throw new Error("valid id is required");
+  }
+  const db = await connectToMongo();
+  const userCollection = db.collection("users");
+  const founded = await userCollection.findOne({ id: Number(id) });
+  if (!founded) {
+    throw new Error("user not found");
+  }
   return founded;
 }
 
 async function userDeleteById(id) {
-  if (!id) return console.error("id is required");
-
-  const userList = await getAllUsersList();
-
-  const founded = userList.find((item) => item?.id == id);
-
-  if (!founded) return console.error("user not found");
-
-  const filterList = userList.filter((item) => item?.id != id);
-
-  await fs.writeFile(usersPath, JSON.stringify(filterList));
-
+  if (id == null || id === "" || !Number.isSafeInteger(userId)) {
+    throw new Error("valid id is required");
+  }
+  const ds = await connectToMongo();
+  const userCollection = ds.collection("users");
+  const founded = await userCollection.findOneAndDelete({ id: Number(id) });
+  if (!founded) {
+    throw new Error("user not found");
+  }
   return founded;
 }
 async function userSave(user) {
-  if (!user) throw new Error("user is not defined");
-  const usersList = await getAllUsersList();
+  if (
+    user === null ||
+    typeof user !== "object" ||
+    Array.isArray(user) ||
+    !user?.name
+  ) {
+    throw new TypeError("user must be a valid object");
+  }
+  const db = await connectToMongo();
+  const userCollection = db.collection("users");
+  if (user?.id) {
+    const res = await userCollection.updateOne(
+      { id: Number(user?.id) },
+      { $set: user },
+    );
+    return res;
+  }
   if (!user?.id) {
-    const userWithId = { id: usersList?.length + 1, ...user };
-    usersList?.push(userWithId);
-    await fs.writeFile(usersPath, JSON.stringify(usersList));
-    return userWithId;
+    const res = await userCollection?.insertOne({ ...user, id: Date.now() });
+    return res;
   }
-  const foundedIndex = usersList?.findIndex((item) => item?.id == user?.id);
-  if (foundedIndex == -1) {
-    throw new Error("user not found by id");
-  }
-  usersList[foundedIndex] = user;
-  console.log(usersList);
-  await fs.writeFile(usersPath, JSON.stringify(usersList));
-  return user;
 }
 module.exports.userModels = {
   userGetById,

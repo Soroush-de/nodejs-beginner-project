@@ -1,12 +1,22 @@
 const server = require("http").createServer();
 const { productControllers } = require("./controllers/productController");
 const { userController } = require("./controllers/userController");
+const { methodHandler, routeMethods } = require("./utils/helper");
 server.on("request", async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const { pathname, searchParams } = url;
-
   if (req.url == "/favicon.ico") {
     return res.end();
+  }
+  if (routeMethods?.[pathname] !== req.method) {
+    res.statusCode = 403;
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        error: "Method not allowed",
+        statusCode: 403,
+      }),
+    );
   }
   switch (pathname) {
     case "/api/products/productsGetList":
@@ -30,18 +40,15 @@ server.on("request", async (req, res) => {
     case "/api/users/userDeleteById":
       return userController.deleteById(searchParams.get("id"), res);
   }
-  if (pathname == "/api/save/saveUser") {
-    if (req.method !== "POST") {
-      res.statusCode = 403;
-      res.setHeader("Content-Type", "application/json");
-      res.end(
-        JSON.stringify({
-          message: "method not allowed",
-        }),
-      );
-    }
+  if (pathname == "/api/user/saveUser") {
+    if (methodHandler({ method: "POST", req, res })) return;
     const user = await userController.getRequestBody(req);
     return await userController.userSave(res, user);
+  }
+  if (pathname == "/api/product/saveProduct") {
+    if (methodHandler({ method: "POST", req, res })) return;
+    const product = await userController.getRequestBody(req);
+    return await productControllers.save(res, product);
   }
   res.statusCode = 400;
   res.setHeader("Content-Type", "text/html");

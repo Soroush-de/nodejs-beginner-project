@@ -1,6 +1,6 @@
 const { productModels } = require("../models/products.model");
 
-async function get(res = null, searchParams) {
+async function get(res, searchParams) {
   try {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
@@ -15,7 +15,6 @@ async function get(res = null, searchParams) {
   }
 }
 async function getById(res, id) {
-  
   try {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
@@ -39,8 +38,21 @@ async function deleteById(res, id) {
     res.end("<h1> Error </h1>");
   }
 }
+async function save(res, product) {
+  try {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    const saved = productModels.saveProduct(product);
+    return res.end(JSON.stringify(saved));
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "text/html");
+    res.end("<h1> Error </h1>");
+  }
+}
 module.exports.productControllers = {
   get,
   deleteById,
   getById,
+  save,
 };
