@@ -42,8 +42,14 @@ server.on("request", async (req, res) => {
   }
   if (pathname == "/api/user/saveUser") {
     if (methodHandler({ method: "POST", req, res })) return;
-    const user = await userController.getRequestBody(req);
-    return await userController.userSave(res, user);
+    try {
+      const user = await userController.getRequestBody(req);
+      return await userController.userSave(res, user);
+    } catch (err) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json");
+      return res.end(JSON.stringify({ error: err.message, status: 400 }));
+    }
   }
   if (pathname == "/api/product/saveProduct") {
     if (methodHandler({ method: "POST", req, res })) return;

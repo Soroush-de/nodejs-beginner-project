@@ -29,7 +29,7 @@ async function userGetList({ searchParams }) {
   return userList;
 }
 async function userGetById(id) {
-  if (id == null || id === "" || !Number.isSafeInteger(userId)) {
+  if (id == null || id === "" || !Number.isSafeInteger(id)) {
     throw new Error("valid id is required");
   }
   const db = await connectToMongo();
@@ -42,7 +42,7 @@ async function userGetById(id) {
 }
 
 async function userDeleteById(id) {
-  if (id == null || id === "" || !Number.isSafeInteger(userId)) {
+  if (id == null || id === "" || !Number.isSafeInteger(id)) {
     throw new Error("valid id is required");
   }
   const ds = await connectToMongo();

@@ -41,14 +41,14 @@ async function deleteById(id, res) {
   try {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    const deleted = userModels.userDeleteById(id);
+    const deleted = await userModels.userDeleteById(id);
     res.end(JSON.stringify(deleted));
   } catch (error) {
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
-        error: err,
+        error,
         status: 500,
         message: "There is an error in delete user by id api",
       }),
@@ -79,13 +79,18 @@ function getRequestBody(req) {
 
     req.on("data", (chunk) => {
       body += chunk;
+      if (body.length > 1e6) {
+        reject(new Error("Request body too large"));
+        req.destroy();
+      }
     });
 
     req.on("end", () => {
+      if (!body) return reject(new Error("Request body is empty"));
       try {
         resolve(JSON.parse(body));
       } catch (error) {
-        reject(error);
+        reject(new Error("Invalid JSON body"));
       }
     });
 
