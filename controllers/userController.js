@@ -129,10 +129,15 @@ async function userMultiSave(usersList, res) {
 
     const saved = await userModels.userMultiSave(userSave);
     const updated = await userModels.userMultiUpdate(user_update);
-    // console.log(saved);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    return res.end("Save Success");
+    return res.end(
+      JSON.stringify({
+        message: "Success",
+        statusCode: 200,
+        data: {updated , saved},
+      }),
+    );
   } catch (error) {
     // throw new Error("error in multi user save: ", error);
 
@@ -176,8 +181,6 @@ async function userDeleteAll({ res }) {
   }
 }
 async function userDeleteByIds({ list, res }) {
-  console.log("object");
-
   if (!Array.isArray(list) || !list.length) {
     res.statusCode = 400;
     res.setHeader("Content-Type", "application/json");

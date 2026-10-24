@@ -2,7 +2,7 @@ const fs = require("fs/promises");
 const path = require("path");
 const { randomUUID } = require("crypto");
 const { userServices } = require("../services/userServices");
-const { connectToMongo } = require("../config/connect_to_mongo");
+const { connectToMongo, ObjectId } = require("../config/connect_to_mongo");
 
 const usersPath = path.join(__dirname, "../db/users.json");
 async function getCollections(db, collection_name) {
@@ -89,7 +89,12 @@ async function userMultiSave(usersList) {
       id: randomUUID(),
     }));
     const saved = await userCollection.insertMany(usersListFormat);
-    return saved;
+    let savedList = [];
+    for (const id of Object.values(saved?.insertedIds)) {
+      const founded = await userCollection.findOne({ _id: new ObjectId(id) });
+      savedList.push(founded);
+    }
+    return savedList;
   } catch (error) {
     throw new Error(error);
   }
@@ -101,19 +106,25 @@ async function userMultiUpdate(usersList) {
     const userCollection = db.collection("users");
     let updatedList = [];
     for (const user of usersList) {
-      const updated = await userCollection.updateOne(
+      const updated = await userCollection.findOneAndUpdate(
         { id: String(user?.id) },
         { $set: user },
       );
       updatedList?.push(updated);
     }
-    return updatedList;
+    let updatedListFormater = [];
+    for (const data of updatedList) {
+      const founded = await userCollection.findOne({
+        _id: new ObjectId(data?._id),
+      });
+      updatedListFormater.push(founded);
+    }
+    return updatedListFormater;
   } catch (err) {
     throw new Error(err);
   }
 }
 async function deleteByIds(idsList) {
-  console.log(idsList);
   if (!Array.isArray(idsList)) {
     throw new Error("ids List should be an array");
   }
@@ -122,7 +133,6 @@ async function deleteByIds(idsList) {
     const userCollection = db.collection("users");
     let deletedArr = [];
     for (const id of idsList) {
-      console.log(id);
       const deleted = await userCollection.findOneAndDelete({ id });
       deletedArr.push(deleted);
     }
