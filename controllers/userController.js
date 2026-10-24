@@ -133,7 +133,7 @@ async function userMultiSave(usersList, res) {
     res.setHeader("Content-Type", "application/json");
     return res.end("Save Success");
   } catch (error) {
-    console.error("userMultiSave error:", error);
+    throw new Error("error in multi user save: ", error);
 
     if (res.headersSent) {
       return;

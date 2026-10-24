@@ -69,9 +69,12 @@ async function saveProduct(product) {
   if (!product?.id) {
     const saved = await productCollection?.insertOne({
       ...product,
-      id: Date.now(),
+      id: randomUUID(),
     });
-    return saved;
+    const savedData = await productCollection?.findOne({
+      _id: saved?.insertedId,
+    });
+    return savedData;
   }
 }
 async function productMultiSave(productsList) {
@@ -96,10 +99,38 @@ async function productMultiSave(productsList) {
     ?.toArray();
   return founded;
 }
+async function deleteByIds({ ids }) {
+  if (!Array?.isArray(ids)) {
+    throw new Error("error in deleteByIds model");
+  }
+  const db = await connectToMongo();
+  const productCollection = await db.collection("products");
+  let deletedIds = [];
+  for (const id of ids) {
+    const deleted = await productCollection.findOneAndDelete({ id });
+    deletedIds.push(deleted);
+  }
+  return deletedIds;
+}
+async function deleteAll() {
+  try {
+    const db = await connectToMongo();
+    const productCollection = await db.collection("products");
+    const deleted = await productCollection?.deleteMany({});
+    return deleted;
+  } catch (error) {
+    throw new Error({
+      message: "Error in delete All",
+      error: error,
+    });
+  }
+}
 module.exports.productModels = {
   productDeleteById,
   productGetById,
   productGetList,
   saveProduct,
   productMultiSave,
+  deleteByIds,
+  deleteAll,
 };

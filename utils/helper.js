@@ -20,9 +20,11 @@ const routeMethods = {
   "/api/users/userGetById": "GET",
   "/api/users/userDeleteById": "DELETE",
   "/api/user/saveUser": "POST",
-  "/api/product/saveProduct": "POST",
+  "/api/products/saveProduct": "POST",
   "/api/user/multiSave": "POST",
   "/api/products/multiSave": "POST",
+  "/api/products/deleteByIds": "POST",
+  "/api/products/deleteAll": "DELETE",
 };
 module.exports = {
   methodHandler,

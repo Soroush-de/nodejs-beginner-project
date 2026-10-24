@@ -10,7 +10,7 @@ async function get(res, searchParams) {
     res.end(JSON.stringify(productList));
   } catch (err) {
     res.statusCode = 500;
-    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
         message: "there is an error in products get request",
@@ -28,9 +28,7 @@ async function getById(res, id) {
     res.end(JSON.stringify(productById));
   } catch (err) {
     res.statusCode = 500;
-    res.setHeader("Content-Type", "text/html");
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
         message: "there is an error in products getById request",
@@ -48,9 +46,7 @@ async function deleteById(res, id) {
     res.end(JSON.stringify(deletedProduct));
   } catch (err) {
     res.statusCode = 500;
-    res.setHeader("Content-Type", "text/html");
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
         message: "there is an error in products delete request",
@@ -65,7 +61,13 @@ async function save(res, product) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     const saved = await productModels.saveProduct(product);
-    return res.end(JSON.stringify(saved));
+    return res.end(
+      JSON.stringify({
+        data: saved,
+        statusCode: 200,
+        message: "success",
+      }),
+    );
   } catch (error) {
     res.statusCode = 500;
     res.setHeader("Content-Type", "text/html");
@@ -78,9 +80,9 @@ async function save(res, product) {
     );
   }
 }
-async function multiSave(prodctsList, res) {
-  if (!Array?.isArray(prodctsList)) {
-    res.statusCode = 500;
+async function multiSave(productsList, res) {
+  if (!Array?.isArray(productsList)) {
+    res.statusCode = 400;
     res.setHeader("Content-Type", "application/json");
     return res.end(
       JSON.stringify({
@@ -89,8 +91,8 @@ async function multiSave(prodctsList, res) {
       }),
     );
   }
-  if (!prodctsList?.length) {
-    res.statusCode = 500;
+  if (!productsList?.length) {
+    res.statusCode = 400;
     res.setHeader("Content-Type", "application/json");
     return res.end(
       JSON.stringify({
@@ -102,7 +104,7 @@ async function multiSave(prodctsList, res) {
   try {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    const saved = await productModels.productMultiSave(prodctsList);
+    const saved = await productModels.productMultiSave(productsList);
     res.end(
       JSON.stringify({
         message: "Success",
@@ -122,10 +124,70 @@ async function multiSave(prodctsList, res) {
     );
   }
 }
+async function deleteByIds(idsList, res) {
+  if (!Array.isArray(idsList) || !idsList?.length) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        message: "invalid list type or ids list is empty",
+        statusCode: 400,
+      }),
+    );
+  }
+  try {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    const deletedData = await productModels?.deleteByIds({ ids: idsList });
+    return res.end(
+      JSON.stringify({
+        data: deletedData,
+        statusCode: 200,
+        message: "success",
+      }),
+    );
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        error: error,
+        message: "error server in deleteById's",
+        statusCode: 500,
+      }),
+    );
+  }
+}
+async function deleteAllProducts(res) {
+  try {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    const deleted = await productModels.deleteAll();
+    return res.end(
+      JSON.stringify({
+        message: "success",
+        statusCode: 200,
+        data: deleted,
+      }),
+    );
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        message: "error in delete all products",
+        statusCode: 500,
+        error,
+      }),
+    );
+  }
+}
 module.exports.productControllers = {
   get,
   deleteById,
   getById,
   save,
   multiSave,
+  deleteByIds,
+  deleteAllProducts,
 };
