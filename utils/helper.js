@@ -25,6 +25,8 @@ const routeMethods = {
   "/api/products/multiSave": "POST",
   "/api/products/deleteByIds": "POST",
   "/api/products/deleteAll": "DELETE",
+  "/api/users/deleteAll": "DELETE",
+  "/api/users/deleteByIds": "POST",
 };
 module.exports = {
   methodHandler,

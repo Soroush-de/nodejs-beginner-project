@@ -63,6 +63,18 @@ server.on("request", async (req, res) => {
       });
     }
   }
+  if (pathname == "/api/users/deleteAll") {
+    if (methodHandler({ method: "DELETE", req, res })) return;
+    try {
+      return await userController.userDeleteAll({ res });
+    } catch (error) {
+      res.writeHead(500, {
+        message: "error in delete All api",
+        statusCode: 500,
+        error: error,
+      });
+    }
+  }
   if (pathname == "/api/products/saveProduct") {
     if (methodHandler({ method: "POST", req, res })) return;
     const product = await userController.getRequestBody(req);
@@ -90,6 +102,11 @@ server.on("request", async (req, res) => {
     if (methodHandler({ req, method: "POST", res })) return;
     const ids = await userController.getRequestBody(req);
     return await productControllers.deleteByIds(ids, res);
+  }
+  if (pathname === "/api/users/deleteByIds") {
+    if (methodHandler({ req, method: "POST", res })) return;
+    const ids = await userController.getRequestBody(req);
+    return await userController.userDeleteByIds({ list: ids, res });
   }
   if (pathname == "/api/products/multiSave") {
     if (methodHandler({ req, res, method: "POST" })) return;

@@ -112,6 +112,35 @@ async function userMultiUpdate(usersList) {
     throw new Error(err);
   }
 }
+async function deleteByIds(idsList) {
+  console.log(idsList);
+  if (!Array.isArray(idsList)) {
+    throw new Error("ids List should be an array");
+  }
+  try {
+    const db = await connectToMongo();
+    const userCollection = db.collection("users");
+    let deletedArr = [];
+    for (const id of idsList) {
+      console.log(id);
+      const deleted = await userCollection.findOneAndDelete({ id });
+      deletedArr.push(deleted);
+    }
+    return deletedArr;
+  } catch (error) {
+    throw new Error("error in user delete by ids", { cause: error });
+  }
+}
+async function deleteAll() {
+  try {
+    const db = await connectToMongo();
+    const userCollection = db.collection("users");
+    const deleted = await userCollection.deleteMany({});
+    return deleted;
+  } catch (error) {
+    throw new Error("error message in deleteAll: ", error);
+  }
+}
 module.exports.userModels = {
   userGetById,
   userDeleteById,
@@ -119,4 +148,6 @@ module.exports.userModels = {
   userSave,
   userMultiUpdate,
   userMultiSave,
+  deleteByIds,
+  deleteAll,
 };

@@ -1,6 +1,7 @@
 // const fs = require("fs/promises");
 const { randomUUID } = require("crypto");
 const { userModels } = require("../models/users.model");
+const { userServices } = require("../services/userServices");
 async function get({ searchParams, res }) {
   try {
     const userList = await userModels.userGetList({ searchParams });
@@ -133,7 +134,7 @@ async function userMultiSave(usersList, res) {
     res.setHeader("Content-Type", "application/json");
     return res.end("Save Success");
   } catch (error) {
-    throw new Error("error in multi user save: ", error);
+    // throw new Error("error in multi user save: ", error);
 
     if (res.headersSent) {
       return;
@@ -150,6 +151,67 @@ async function userMultiSave(usersList, res) {
     );
   }
 }
+async function userDeleteAll({ res }) {
+  try {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "appliction/json");
+    const deleted = await userModels.deleteAll();
+    return res.end(
+      JSON.stringify({
+        message: "Success",
+        statusCode: 200,
+        data: deleted,
+      }),
+    );
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        message: "error in delete all users",
+        error: error,
+        statusCode: 500,
+      }),
+    );
+  }
+}
+async function userDeleteByIds({ list, res }) {
+  console.log("object");
+
+  if (!Array.isArray(list) || !list.length) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        message: "error in user delete by ids",
+        statusCode: 400,
+        error: "list should not be empty or type of list is not valid",
+      }),
+    );
+  }
+  try {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    const deleted = await userModels.deleteByIds(list);
+    res.end(
+      JSON.stringify({
+        message: "success",
+        statusCode: 200,
+        data: deleted,
+      }),
+    );
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        message: "error in delete all users",
+        error: error,
+        statusCode: 500,
+      }),
+    );
+  }
+}
 module.exports.userController = {
   get,
   getById,
@@ -157,4 +219,6 @@ module.exports.userController = {
   userSave,
   getRequestBody,
   userMultiSave,
+  userDeleteAll,
+  userDeleteByIds,
 };
