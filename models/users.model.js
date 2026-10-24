@@ -1,6 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
-
+const { randomUUID } = require("crypto");
 const { userServices } = require("../services/userServices");
 const { connectToMongo } = require("../config/connect_to_mongo");
 
@@ -34,7 +34,7 @@ async function userGetById(id) {
   }
   const db = await connectToMongo();
   const userCollection = db.collection("users");
-  const founded = await userCollection.findOne({ id: Number(id) });
+  const founded = await userCollection.findOne({ id: String(id) });
   if (!founded) {
     throw new Error("user not found");
   }
@@ -47,7 +47,7 @@ async function userDeleteById(id) {
   }
   const ds = await connectToMongo();
   const userCollection = ds.collection("users");
-  const founded = await userCollection.findOneAndDelete({ id: Number(id) });
+  const founded = await userCollection.findOneAndDelete({ id: String(id) });
   if (!founded) {
     throw new Error("user not found");
   }
@@ -62,18 +62,54 @@ async function userSave(user) {
   ) {
     throw new TypeError("user must be a valid object");
   }
+
   const db = await connectToMongo();
   const userCollection = db.collection("users");
   if (user?.id) {
     const res = await userCollection.updateOne(
-      { id: Number(user?.id) },
+      { id: String(user?.id) },
       { $set: user },
     );
     return res;
   }
   if (!user?.id) {
-    const res = await userCollection?.insertOne({ ...user, id: Date.now() });
+    const res = await userCollection?.insertOne({ ...user, id: randomUUID() });
     return res;
+  }
+}
+async function userMultiSave(usersList) {
+  if (!usersList?.length || !Array.isArray(usersList)) return [];
+
+  try {
+    const db = await connectToMongo();
+    const userCollection = db.collection("users");
+
+    const usersListFormat = usersList?.map((item) => ({
+      ...item,
+      id: randomUUID(),
+    }));
+    const saved = await userCollection.insertMany(usersListFormat);
+    return saved;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+async function userMultiUpdate(usersList) {
+  if (!usersList?.length || !Array.isArray(usersList)) return [];
+  try {
+    const db = await connectToMongo();
+    const userCollection = db.collection("users");
+    let updatedList = [];
+    for (const user of usersList) {
+      const updated = await userCollection.updateOne(
+        { id: String(user?.id) },
+        { $set: user },
+      );
+      updatedList?.push(updated);
+    }
+    return updatedList;
+  } catch (err) {
+    throw new Error(err);
   }
 }
 module.exports.userModels = {
@@ -81,4 +117,6 @@ module.exports.userModels = {
   userDeleteById,
   userGetList,
   userSave,
+  userMultiUpdate,
+  userMultiSave,
 };

@@ -1,4 +1,5 @@
 // const fs = require("fs/promises");
+const { randomUUID } = require("crypto");
 const { userModels } = require("../models/users.model");
 async function get({ searchParams, res }) {
   try {
@@ -97,10 +98,63 @@ function getRequestBody(req) {
     req.on("error", reject);
   });
 }
+
+async function userMultiSave(usersList, res) {
+  if (!Array.isArray(usersList)) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        message: "type of users list must be an array",
+        statusCode: 400,
+      }),
+    );
+  }
+
+  if (!usersList.length) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        message: "users list should not be empty",
+        statusCode: 400,
+      }),
+    );
+  }
+
+  try {
+    const userSave = usersList.filter((user) => !user?.id);
+    const user_update = usersList.filter((user) => !!user?.id);
+
+    const saved = await userModels.userMultiSave(userSave);
+    const updated = await userModels.userMultiUpdate(user_update);
+    // console.log(saved);
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    return res.end("Save Success");
+  } catch (error) {
+    console.error("userMultiSave error:", error);
+
+    if (res.headersSent) {
+      return;
+    }
+
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        message: "There is an error in user multiSave",
+        error: error.message,
+        statusCode: 500,
+      }),
+    );
+  }
+}
 module.exports.userController = {
   get,
   getById,
   deleteById,
   userSave,
   getRequestBody,
+  userMultiSave,
 };

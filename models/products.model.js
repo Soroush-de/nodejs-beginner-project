@@ -1,6 +1,7 @@
 const fs = require("fs/promises");
 const { productServices } = require("../services/productServices");
 const { connectToMongo } = require("../config/connect_to_mongo");
+const { randomUUID } = require("crypto");
 async function productGetList({ searchParams }) {
   const db = await connectToMongo();
   const productCollection = db.collection("products");
@@ -35,10 +36,10 @@ async function productGetList({ searchParams }) {
   });
 }
 async function productGetById(id) {
-  if (!id) return console.error("id is required");
+  if (!id) throw new Error("id is required");
   const db = await connectToMongo();
   const productCollection = db.collection("products");
-  const foundedById = await productCollection?.findOne({ id: Number(id) });
+  const foundedById = await productCollection.findOne({ id: id });
   if (!foundedById) {
     throw new Error("product not found");
   }
@@ -49,7 +50,7 @@ async function productDeleteById(id) {
   if (!id) throw new Error("id is required");
   const db = await connectToMongo();
   const productCollection = db.collection("products");
-  const deleted = await productCollection?.deleteOne({ id: Number(id) });
+  const deleted = await productCollection?.deleteOne({ id: String(id) });
   if (!deleted) {
     throw new Error("product not found");
   }
@@ -60,7 +61,7 @@ async function saveProduct(product) {
   const productCollection = db.collection("products");
   if (product?.id) {
     const updated = await productCollection?.updateOne(
-      { id: Number(product?.id) },
+      { id: String(product?.id) },
       { $set: product },
     );
     return updated;
@@ -73,9 +74,32 @@ async function saveProduct(product) {
     return saved;
   }
 }
+async function productMultiSave(productsList) {
+  if (
+    !Array.isArray(productsList) ||
+    productsList?.some((product) => product?.id)
+  )
+    return;
+  const db = await connectToMongo();
+  const productCollection = db.collection("products");
+  const productsFormatted = productsList?.map((item) => {
+    return {
+      ...item,
+      id: randomUUID(),
+    };
+  });
+  const savedData = await productCollection?.insertMany(productsFormatted);
+  const founded = await productCollection
+    .find({
+      _id: { $in: Object.values(savedData?.insertedIds) },
+    })
+    ?.toArray();
+  return founded;
+}
 module.exports.productModels = {
   productDeleteById,
   productGetById,
   productGetList,
   saveProduct,
+  productMultiSave,
 };

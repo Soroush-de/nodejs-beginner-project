@@ -1,46 +1,46 @@
 [
-  {
-    "id": 1,
-    "name": "Soroush",
-    "age": 19,
-    "email": "soroush@example.com",
-    "phone": "09120000001",
-    "city": "Tehran",
-    "isActive": true,
-    "userBasket": [
-      {
-        "userId": 1,
-        "productId": 2,
-        "count": 1
-      },
-      {
-        "userId": 1,
-        "productId": 3,
-        "count": 2
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "name": "Ali",
-    "age": 24,
-    "email": "ali@example.com",
-    "phone": "09120000002",
-    "city": "Isfahan",
-    "isActive": true,
-    "userBasket": [
-      {
-        "userId": 2,
-        "productId": 1,
-        "count": 1
-      },
-      {
-        "userId": 2,
-        "productId": 4,
-        "count": 2
-      }
-    ]
-  },
+    {
+      "id": 1,
+      "name": "Soroush",
+      "age": 19,
+      "email": "soroush@example.com",
+      "phone": "09120000001",
+      "city": "Tehran",
+      "isActive": true,
+      "userBasket": [
+        {
+          "userId": 1,
+          "productId": 2,
+          "count": 1
+        },
+        {
+          "userId": 1,
+          "productId": 3,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ali",
+      "age": 24,
+      "email": "ali@example.com",
+      "phone": "09120000002",
+      "city": "Isfahan",
+      "isActive": true,
+      "userBasket": [
+        {
+          "userId": 2,
+          "productId": 1,
+          "count": 1
+        },
+        {
+          "userId": 2,
+          "productId": 4,
+          "count": 2
+        }
+      ]
+    },
   {
     "id": 3,
     "name": "Reza",

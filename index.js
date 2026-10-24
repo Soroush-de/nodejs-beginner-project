@@ -11,7 +11,7 @@ server.on("request", async (req, res) => {
   if (routeMethods?.[pathname] !== req.method) {
     res.statusCode = 403;
     res.setHeader("Content-Type", "application/json");
-    res.end(
+    return res.end(
       JSON.stringify({
         error: "Method not allowed",
         statusCode: 403,
@@ -56,9 +56,32 @@ server.on("request", async (req, res) => {
     const product = await userController.getRequestBody(req);
     return await productControllers.save(res, product);
   }
-  res.statusCode = 400;
+  if (pathname === "/api/user/multiSave") {
+    if (methodHandler({ req, res, method: "POST" })) return;
+    try {
+      const users = await userController.getRequestBody(req);
+      return await userController.userMultiSave(users, res);
+    } catch (error) {
+      if (res.headersSent) return;
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json");
+      return res.end(
+        JSON.stringify({
+          error: error.message,
+          message: "There is an error in users multi save API",
+          statusCode: 400,
+        }),
+      );
+    }
+  }
+  if (pathname == "/api/products/multiSave") {
+    if (methodHandler({ req, res, method: "POST" })) return;
+    const productsData = await userController.getRequestBody(req);
+    return await productControllers.multiSave(productsData, res);
+  }
+  res.statusCode = 404;
   res.setHeader("Content-Type", "text/html");
-  res.end("<h1> Error </h1>");
+  res.end("<h1> request not found </h1>");
 });
 
 server.listen(3000, "127.0.0.1");
